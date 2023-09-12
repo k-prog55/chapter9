@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface PrefecturalGovernmentMapper {
@@ -15,7 +16,7 @@ public interface PrefecturalGovernmentMapper {
 
     //指定された郵便番号にある都道府県庁データを取得するためのクエリ
     @Select("SELECT * FROM prefecturalGovernments WHERE postCode = #{postCode}")
-    List<PrefecturalGovernment> findByPostCode(@Param("postCode") String postCode);  // 郵便番号を指定して都道府県庁のリストを取得するfindByPostCodeメソッド
+    Optional<PrefecturalGovernment> findByPostCode(@Param("postCode") String postCode);  // 郵便番号を指定して都道府県庁のリストを取得するfindByPostCodeメソッド
     // @Paramアノテーションを使用して、引数の名前（"postCode"）とSQLクエリ内のプレースホルダ（#{postCode}）を関連付ける。
     // 引数の名前（"postCode"）＝　@Paramアノテーション内のpostCode　=　SQLクエリ内のプレースホルダ（#{postCode}）となるようにコードを書く。
 

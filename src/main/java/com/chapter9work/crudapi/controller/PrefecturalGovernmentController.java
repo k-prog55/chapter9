@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,22 +39,13 @@ public class PrefecturalGovernmentController {
     //localhost:8080/prefecturalGovernments?postCode=060-8588 にアクセスするとDBに登録されている都道府県庁情報から
     //郵便番号が060-8588と一致する都道府県情報を取得する
     @GetMapping("/prefecturalGovernments")
-    public ResponseEntity<List<String>> getprefecturalGovernmentsByPostCode(@RequestParam("postCode") String postCode) {
+    public ResponseEntity<String> getprefecturalGovernmentsByPostCode(@RequestParam("postCode") String postCode) {
 
         // prefecturalGovernmentServiceを使用して、指定された郵便番号にある都道府県庁を取得
-        List<PrefecturalGovernment> prefecturalGovernments = prefecturalGovernmentService.findByPostCode(postCode);
+        Optional<PrefecturalGovernment> prefecturalGovernment = prefecturalGovernmentService.findByPostCode(postCode);
 
-        // 都道府県庁が見つかった場合
-        if (!prefecturalGovernments.isEmpty()) {
-            List<String> prefecturalGovernmentNames = prefecturalGovernments.stream()
-                    .map(PrefecturalGovernment::getName)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(prefecturalGovernmentNames);
-        } else {
-            // 都道府県庁が見つからない場合のエラーレスポンス
-            return ResponseEntity.notFound().build();
-        }
+        //都道府県庁が存在する場合はその名前を取得し、存在しない場合は空の配列を返す
+        String prefecturalGovernmentName = prefecturalGovernment.map(PrefecturalGovernment::getName).orElse("");
+        return ResponseEntity.ok(prefecturalGovernmentName);
     }
-
-
 }
