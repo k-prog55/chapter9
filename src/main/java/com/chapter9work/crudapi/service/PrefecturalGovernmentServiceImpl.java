@@ -26,10 +26,15 @@ public class PrefecturalGovernmentServiceImpl implements PrefecturalGovernmentSe
         return prefecturalGovernmentMapper.findAll(); // Mapperを使用してデータベースから都道府県情報を取得
     }
 
-    // 指定された郵便番号の都道府県庁情報を取得するメソッド
+    // 指定された郵便番号の都道府県庁情報を取得するメソッド(もし都道府県情報が存在しない場合は"resource not found"を返す)
     @Override
-    public Optional<PrefecturalGovernment> findByPostCode(String postCode) {
-        return prefecturalGovernmentMapper.findByPostCode(postCode);  // Mapperを使用して指定された年の都道府県情報を取得
+    public PrefecturalGovernment findByPostCode(String postCode) {
+        Optional<PrefecturalGovernment> prefecturalGovernment = this.prefecturalGovernmentMapper.findByPostCode(postCode);
+        if (prefecturalGovernment.isPresent()) {
+            return prefecturalGovernment.get();
+        } else {
+            throw new ResourceNotFoundException("resource not found");
+        }
     }
-    
+
 }
