@@ -43,10 +43,10 @@ public class PrefecturalGovernmentController {
     //localhost:8080/prefecturalGovernments?postCode=060-8588 にアクセスするとDBに登録されている都道府県庁情報から
     //郵便番号が060-8588と一致する都道府県情報を取得する
     @GetMapping("/prefecturalGovernments")
-    public String getprefecturalGovernmentsByPostCode(@RequestParam("postCode") String postCode) {
+    public ResponseEntity<PrefecturalGovernment> getprefecturalGovernmentsByPostCode(@RequestParam("postCode") String postCode) {
         // prefecturalGovernmentServiceを使用して、指定された郵便番号にある都道府県庁を取得
         PrefecturalGovernment prefecturalGovernment = prefecturalGovernmentService.findByPostCode(postCode);
-        return prefecturalGovernment.getName();
+        return ResponseEntity.ok(prefecturalGovernment);
     }
 
     //例外処理を実装
