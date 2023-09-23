@@ -2,15 +2,19 @@ package com.chapter9work.crudapi.controller;
 
 import com.chapter9work.crudapi.entity.PrefecturalGovernment;
 import com.chapter9work.crudapi.service.PrefecturalGovernmentService;
+import com.chapter9work.crudapi.service.ResourceNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @RestController
 public class PrefecturalGovernmentController {
@@ -39,13 +43,22 @@ public class PrefecturalGovernmentController {
     //localhost:8080/prefecturalGovernments?postCode=060-8588 にアクセスするとDBに登録されている都道府県庁情報から
     //郵便番号が060-8588と一致する都道府県情報を取得する
     @GetMapping("/prefecturalGovernments")
-    public ResponseEntity<String> getprefecturalGovernmentsByPostCode(@RequestParam("postCode") String postCode) {
-
+    public ResponseEntity<PrefecturalGovernment> getprefecturalGovernmentsByPostCode(@RequestParam("postCode") String postCode) {
         // prefecturalGovernmentServiceを使用して、指定された郵便番号にある都道府県庁を取得
-        Optional<PrefecturalGovernment> prefecturalGovernment = prefecturalGovernmentService.findByPostCode(postCode);
+        PrefecturalGovernment prefecturalGovernment = prefecturalGovernmentService.findByPostCode(postCode);
+        return ResponseEntity.ok(prefecturalGovernment);
+    }
 
-        //都道府県庁が存在する場合はその名前を取得し、存在しない場合は空の配列を返す
-        String prefecturalGovernmentName = prefecturalGovernment.map(PrefecturalGovernment::getName).orElse("");
-        return ResponseEntity.ok(prefecturalGovernmentName);
+    //例外処理を実装
+    @ExceptionHandler(value = ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNoResourceFound(
+            ResourceNotFoundException e, HttpServletRequest request) {
+        Map<String, String> body = Map.of(
+                "timestamp", ZonedDateTime.now().toString(),
+                "status", String.valueOf(HttpStatus.NOT_FOUND.value()),
+                "error", HttpStatus.NOT_FOUND.getReasonPhrase(),
+                "message", e.getMessage(),
+                "path", request.getRequestURI());
+        return new ResponseEntity(body, HttpStatus.NOT_FOUND);
     }
 }
